@@ -794,19 +794,19 @@ static NSMutableArray *tasks;
         switch (status)
         {
             case AFNetworkReachabilityStatusUnknown:
-                NSLog(@"未知网络");
+                //NSLog(@"未知网络");
                 networkStatus ? networkStatus(BANetworkStatusUnknown) : nil;
                 break;
             case AFNetworkReachabilityStatusNotReachable:
-                NSLog(@"没有网络");
+                //NSLog(@"没有网络");
                 networkStatus ? networkStatus(BANetworkStatusNotReachable) : nil;
                 break;
             case AFNetworkReachabilityStatusReachableViaWWAN:
-                NSLog(@"手机自带网络");
+                //NSLog(@"手机自带网络");
                 networkStatus ? networkStatus(BANetworkStatusReachableViaWWAN) : nil;
                 break;
             case AFNetworkReachabilityStatusReachableViaWiFi:
-                NSLog(@"wifi 网络");
+                //NSLog(@"wifi 网络");
                 networkStatus ? networkStatus(BANetworkStatusReachableViaWiFi) : nil;
                 break;
         }

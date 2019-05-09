@@ -11,7 +11,7 @@
  */
 
 #import "ViewController.h"
-#import "BANetManager_OC.h"
+#import "BANetManager/BANetManager_OC.h"
 
 
 static NSString * const url1 = @"http://c.m.163.com/nc/video/home/1-10.html";

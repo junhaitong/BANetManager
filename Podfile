@@ -9,7 +9,7 @@ target 'BANetManager' do
 
 	pod 'AFNetworking'
     pod 'YYCache'
-#    pod 'BANetManager'
+    pod 'RealReachability'
 
 end
 
