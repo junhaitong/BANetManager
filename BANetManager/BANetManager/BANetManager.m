@@ -231,20 +231,18 @@ static NSMutableArray *tasks;
     {
         sessionTask = [BANetManagerShare.sessionManager POST:URLString parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
             /*! 回到主线程刷新UI */
-//            dispatch_async(dispatch_get_main_queue(), ^{
-//                if (progressBlock)
-//                {
-//                    progressBlock(uploadProgress.completedUnitCount, uploadProgress.totalUnitCount);
-//                }
-//            });
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (progressBlock)
+                {
+                    progressBlock(uploadProgress.completedUnitCount, uploadProgress.totalUnitCount);
+                }
+            });
         } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
             [[weakSelf tasks] removeObject:sessionTask];
             if (successBlock)
             {
                 successBlock(responseObject);
             }
-
-            
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             NSLog(@"BAHttpRequestTypePost错误信息：%@",error);
             [[weakSelf tasks] removeObject:sessionTask];
@@ -298,7 +296,9 @@ static NSMutableArray *tasks;
     
     if (sessionTask)
     {
-        [[weakSelf tasks] addObject:sessionTask];
+        @synchronized([weakSelf tasks]) {
+            [[weakSelf tasks] addObject:sessionTask];
+        }
     }
     
     return sessionTask;
