@@ -296,9 +296,7 @@ static NSMutableArray *tasks;
     
     if (sessionTask)
     {
-        @synchronized([weakSelf tasks]) {
-            [[weakSelf tasks] addObject:sessionTask];
-        }
+        [[weakSelf tasks] addObject:sessionTask];
     }
     
     return sessionTask;
