@@ -21,7 +21,6 @@
 /*! 过期属性或方法名提醒 */
 #define BANetManagerDeprecated(instead) __deprecated_msg(instead)
 
-
 /*! 使用枚举NS_ENUM:区别可判断编译器是否支持新式枚举,支持就使用新的,否则使用旧的 */
 typedef NS_ENUM(NSUInteger, BANetworkStatus)
 {

@@ -191,8 +191,40 @@ static NSMutableArray *tasks;
         default:
             break;
     }
-
+    
+    AFHTTPSessionManager *scc = BANetManagerShare.sessionManager;
+    AFHTTPResponseSerializer *scc2 = scc.responseSerializer;
+    AFHTTPRequestSerializer *scc3 = scc.requestSerializer;
+    NSTimeInterval timeoutInterval = BANetManagerShare.timeoutInterval;
+    
+    NSString *isCache = isNeedCache ? @"开启":@"关闭";
+    CGFloat allCacheSize = [BANetManagerCache ba_getAllHttpCacheSize];
+    
+    if (BANetManagerShare.isOpenLog)
+    {
+        NSLog(@"\n******************** 请求参数 ***************************");
+        NSLog(@"\n请求头: %@\n超时时间设置：%.1f 秒【默认：30秒】\nAFHTTPResponseSerializer：%@【默认：AFJSONResponseSerializer】\nAFHTTPRequestSerializer：%@【默认：AFJSONRequestSerializer】\n请求方式: %@\n请求URL: %@\n请求param: %@\n是否启用缓存：%@【默认：开启】\n目前总缓存大小：%.6fM\n", BANetManagerShare.sessionManager.requestSerializer.HTTPRequestHeaders, timeoutInterval, scc2, scc3, requestType, URLString, parameters, isCache, allCacheSize);
+        NSLog(@"\n********************************************************");
+    }
+    
     BAURLSessionTask *sessionTask = nil;
+    
+    // 读取缓存
+    id responseCacheData = [BANetManagerCache ba_httpCacheWithUrlString:urlString parameters:parameters];
+    
+    if (isNeedCache && responseCacheData != nil)
+    {
+        if (successBlock)
+        {
+            successBlock(responseCacheData);
+        }
+        if (BANetManagerShare.isOpenLog)
+        {
+            NSLog(@"取用缓存数据结果： *** %@", responseCacheData);
+        }
+        [[weakSelf tasks] removeObject:sessionTask];
+        return nil;
+    }
     
     if (BANetManagerShare.isSetQueryStringSerialization)
     {
@@ -230,6 +262,10 @@ static NSMutableArray *tasks;
     else if (type == BAHttpRequestTypePost)
     {
         sessionTask = [BANetManagerShare.sessionManager POST:URLString parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
+            if (BANetManagerShare.isOpenLog)
+            {
+                NSLog(@"上传进度--%lld, 总进度---%lld",uploadProgress.completedUnitCount,uploadProgress.totalUnitCount);
+            }
             /*! 回到主线程刷新UI */
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (progressBlock)
@@ -238,18 +274,28 @@ static NSMutableArray *tasks;
                 }
             });
         } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-            [[weakSelf tasks] removeObject:sessionTask];
+            if (BANetManagerShare.isOpenLog)
+            {
+                NSLog(@"post 请求数据结果： *** %@", responseObject);
+            }
             if (successBlock)
             {
                 successBlock(responseObject);
             }
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            NSLog(@"BAHttpRequestTypePost错误信息：%@",error);
+            
+            // 对数据进行异步缓存
+            [BANetManagerCache ba_setHttpCache:responseObject urlString:urlString parameters:parameters];
             [[weakSelf tasks] removeObject:sessionTask];
+            
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            NSLog(@"错误信息：%@",error);
+            
             if (failureBlock)
             {
                 failureBlock(error);
             }
+            [[weakSelf tasks] removeObject:sessionTask];
+            
         }];
     }
     else if (type == BAHttpRequestTypePut)
