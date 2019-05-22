@@ -288,8 +288,10 @@ static NSMutableArray *tasks;
             [[weakSelf tasks] removeObject:sessionTask];
             
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            NSLog(@"错误信息：%@",error);
-            
+            if (BANetManagerShare.isOpenLog)
+            {
+                 NSLog(@"错误信息：%@",error);
+            }
             if (failureBlock)
             {
                 failureBlock(error);
