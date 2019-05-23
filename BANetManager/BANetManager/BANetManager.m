@@ -53,10 +53,6 @@ static NSMutableArray *tasks;
     return sharedBANetManager;
 }
 
-- (void)setIsPrintData:(BOOL)isPrintData {
-    _isPrintData = isPrintData;
-}
-
 + (void)initialize
 {
     [self setupBANetManager];
@@ -66,6 +62,7 @@ static NSMutableArray *tasks;
 {
     BANetManagerShare.sessionManager = [AFHTTPSessionManager manager];
     
+    BANetManagerShare.isPrintData = YES;
 //    BANetManagerShare.requestSerializer = BAHttpRequestSerializerJSON;
 //    BANetManagerShare.responseSerializer = BAHttpResponseSerializerJSON;
 
