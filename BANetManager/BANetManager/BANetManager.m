@@ -53,6 +53,13 @@ static NSMutableArray *tasks;
     return sharedBANetManager;
 }
 
+- (BOOL)isPrintData {
+    if (!_isPrintData) {
+        _isPrintData = YES;
+    }
+    return _isPrintData;
+}
+
 + (void)initialize
 {
     [self setupBANetManager];
