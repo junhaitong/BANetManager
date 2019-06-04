@@ -372,7 +372,6 @@
 		C492313C1ED0431A00B61C37 /* BANetManager */ = {
 			isa = PBXGroup;
 			children = (
-				6BC7AC0822A640D1005CB580 /* LoadingAnimation */,
 				C49231541ED0434300B61C37 /* BANetManager */,
 				C49231401ED0431A00B61C37 /* AppDelegate.h */,
 				C49231411ED0431A00B61C37 /* AppDelegate.m */,
@@ -399,6 +398,7 @@
 		C49231541ED0434300B61C37 /* BANetManager */ = {
 			isa = PBXGroup;
 			children = (
+				6BC7AC0822A640D1005CB580 /* LoadingAnimation */,
 				C424BBD61FC3D6A3009B7F6C /* BADataEntity.h */,
 				C424BBD71FC3D6A3009B7F6C /* BADataEntity.m */,
 				C424BBD51FC3D6A3009B7F6C /* BANetManager_OC.h */,
