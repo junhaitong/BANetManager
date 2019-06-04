@@ -22,7 +22,7 @@
 #import "BANetManagerCache.h"
 
 #import "BADataEntity.h"
-
+#import "SPActivityIndicatorView.h"
 
 static NSMutableArray *tasks;
 
@@ -37,6 +37,7 @@ static NSMutableArray *tasks;
 @interface BANetManager ()
 
 @property(nonatomic, strong) AFHTTPSessionManager *sessionManager;
+@property (nonatomic, strong) SPActivityIndicatorView *activityIndicatorView;
 
 @end
 
@@ -144,6 +145,168 @@ static NSMutableArray *tasks;
         //            BANetManagerShare.sessionManager.securityPolicy = policy;
     }
 }
+
+- (void)showWaiting
+{
+    if (self.activityIndicatorView) {
+        [self.activityIndicatorView stopAnimating];
+        [self.activityIndicatorView removeFromSuperview];
+        self.activityIndicatorView = nil;
+    }
+    
+    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
+    self.activityIndicatorView = [[SPActivityIndicatorView alloc] initWithType:SPActivityIndicatorAnimationTypeLineScale tintColor:[UIColor colorWithRed:66/255.0f green:221/255.0f blue:124/255.0f alpha:1.0f]];
+    [keyWindow addSubview:self.activityIndicatorView];
+    self.activityIndicatorView.frame = CGRectMake(0, 0, 50, 50);
+    self.activityIndicatorView.center = keyWindow.center;
+    [self.activityIndicatorView startAnimating];
+}
+
+- (void)stopWaiting
+{
+    if (self.activityIndicatorView) {
+        [self.activityIndicatorView stopAnimating];
+        [self.activityIndicatorView removeFromSuperview];
+        self.activityIndicatorView = nil;
+    }
+}
+
+#pragma mark - 网络请求的类方法 ---  post
+/*!
+ *  网络请求的实例方法
+ *
+ *  @param isNeedShow   isNeedShow
+ *  @param isNeedCache  是否需要缓存，只有 get / post 请求有缓存配置
+ *  @param urlString    请求的地址
+ *  @param parameters    请求的参数
+ *  @param successBlock 请求成功的回调
+ *  @param failureBlock 请求失败的回调
+ *  @param progressBlock 进度
+ */
++ (BAURLSessionTask *)ba_requestWithParameters:(id)parameters
+                             isNeedCache:(BOOL)isNeedCache
+                             isNeedShow:(BOOL)isNeedShow
+                               urlString:(NSString *)urlString
+                            successBlock:(BAResponseSuccessBlock)successBlock
+                            failureBlock:(BAResponseFailBlock)failureBlock
+                           progressBlock:(BADownloadProgressBlock)progressBlock
+{
+    if (urlString == nil)
+    {
+        return nil;
+    }
+    
+    BAWeak;
+    /*! 检查地址中是否有中文 */
+    NSString *URLString = [NSURL URLWithString:urlString] ? urlString : [self strUTF8Encoding:urlString];
+    
+    AFHTTPSessionManager *scc = BANetManagerShare.sessionManager;
+    AFHTTPResponseSerializer *scc2 = scc.responseSerializer;
+    AFHTTPRequestSerializer *scc3 = scc.requestSerializer;
+    NSTimeInterval timeoutInterval = BANetManagerShare.timeoutInterval;
+    
+    NSString *isCache = isNeedCache ? @"开启":@"关闭";
+    CGFloat allCacheSize = [BANetManagerCache ba_getAllHttpCacheSize];
+    
+    if (BANetManagerShare.isOpenLog)
+    {
+        NSLog(@"\n******************** 请求参数 ***************************");
+        NSLog(@"\n请求头: %@\n超时时间设置：%.1f 秒【默认：30秒】\nAFHTTPResponseSerializer：%@【默认：AFJSONResponseSerializer】\nAFHTTPRequestSerializer：%@【默认：AFJSONRequestSerializer】\n请求方式: post\n请求URL: %@\n请求param: %@\n是否启用缓存：%@【默认：开启】\n目前总缓存大小：%.6fM\n", BANetManagerShare.sessionManager.requestSerializer.HTTPRequestHeaders, timeoutInterval, scc2, scc3, URLString, parameters, isCache, allCacheSize);
+        NSLog(@"\n********************************************************");
+    }
+    
+    BAURLSessionTask *sessionTask = nil;
+    
+    // 读取缓存
+    id responseCacheData = [BANetManagerCache ba_httpCacheWithUrlString:urlString parameters:parameters];
+    
+    if (isNeedCache && responseCacheData != nil)
+    {
+        if (successBlock)
+        {
+            successBlock(responseCacheData);
+        }
+        if (BANetManagerShare.isOpenLog)
+        {
+            NSLog(@"取用缓存数据结果： *** %@", responseCacheData);
+        }
+        [[weakSelf tasks] removeObject:sessionTask];
+        return nil;
+    }
+    
+    if (BANetManagerShare.isSetQueryStringSerialization)
+    {
+        [BANetManagerShare.sessionManager.requestSerializer setQueryStringSerializationWithBlock:^NSString * _Nonnull(NSURLRequest * _Nonnull request, id  _Nonnull parameters, NSError * _Nullable __autoreleasing * _Nullable error) {
+            
+            return parameters;
+            
+        }];
+    }
+    
+    if (isNeedShow)
+    {
+        [[BANetManager sharedBANetManager] showWaiting];
+    }
+    
+    sessionTask = [BANetManagerShare.sessionManager POST:URLString parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
+        if (BANetManagerShare.isOpenLog)
+        {
+            NSLog(@"上传进度--%lld, 总进度---%lld",uploadProgress.completedUnitCount,uploadProgress.totalUnitCount);
+        }
+        /*! 回到主线程刷新UI */
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (progressBlock)
+            {
+                progressBlock(uploadProgress.completedUnitCount, uploadProgress.totalUnitCount);
+            }
+        });
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (isNeedShow)
+        {
+            [[BANetManager sharedBANetManager] stopWaiting];
+        }
+        
+        if (BANetManagerShare.isOpenLog)
+        {
+            NSLog(@"post 请求数据结果： *** %@", responseObject);
+        }
+        if (successBlock)
+        {
+            successBlock(responseObject);
+        }
+        
+        // 对数据进行异步缓存
+        [BANetManagerCache ba_setHttpCache:responseObject urlString:urlString parameters:parameters];
+        [[weakSelf tasks] removeObject:sessionTask];
+        
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (isNeedShow)
+        {
+            [[BANetManager sharedBANetManager] stopWaiting];
+        }
+        
+        if (BANetManagerShare.isOpenLog)
+        {
+            NSLog(@"错误信息：%@",error);
+        }
+        if (failureBlock)
+        {
+            failureBlock(error);
+        }
+        [[weakSelf tasks] removeObject:sessionTask];
+        
+    }];
+    
+    if (sessionTask)
+    {
+        [[weakSelf tasks] addObject:sessionTask];
+    }
+    
+    return sessionTask;
+}
+
+
+
 
 #pragma mark - 网络请求的类方法 --- get / post / put / delete
 /*!

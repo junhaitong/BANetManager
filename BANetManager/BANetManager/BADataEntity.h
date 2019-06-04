@@ -18,6 +18,8 @@
 @property (nonatomic, copy) id parameters;
 /** 是否缓存响应 */
 @property (nonatomic, assign, getter=isNeedCache) BOOL needCache;
+/** 是否显示加载菊花 */
+@property (nonatomic, assign, getter=isNeedShow) BOOL needShow;
 
 @end
 
