@@ -554,7 +554,8 @@ static NSMutableArray *tasks;
     if (!entity || ![entity isKindOfClass:[BADataEntity class]]) {
         return nil;
     }
-    return [self ba_requestWithType:BAHttpRequestTypePost isNeedCache:entity.isNeedCache urlString:entity.urlString parameters:entity.parameters successBlock:successBlock failureBlock:failureBlock progressBlock:progressBlock];
+    //return [self ba_requestWithType:BAHttpRequestTypePost isNeedCache:entity.isNeedCache urlString:entity.urlString parameters:entity.parameters successBlock:successBlock failureBlock:failureBlock progressBlock:progressBlock];
+    return [self ba_requestWithParameters:entity.parameters isNeedCache:entity.needCache isNeedShow:entity.needShow urlString:entity.urlString successBlock:successBlock failureBlock:failureBlock progressBlock:progressBlock];
 }
 
 /**
