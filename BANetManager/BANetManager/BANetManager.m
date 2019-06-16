@@ -214,7 +214,7 @@ static NSMutableArray *tasks;
         NSLog(@"\n请求头: %@\n超时时间设置：%.1f 秒【默认：30秒】\nAFHTTPResponseSerializer：%@【默认：AFJSONResponseSerializer】\nAFHTTPRequestSerializer：%@【默认：AFJSONRequestSerializer】\n请求方式: post\n请求URL: %@\n请求param: %@\n是否启用缓存：%@【默认：开启】\n目前总缓存大小：%.6fM\n", BANetManagerShare.sessionManager.requestSerializer.HTTPRequestHeaders, timeoutInterval, scc2, scc3, URLString, parameters, isCache, allCacheSize);
         NSLog(@"\n********************************************************");
     }
-    NSLog(@"老板非常坑逼，没什么钱，喜欢拖欠工资。1、试用期自己走人不给工资。2、喜欢扣你工资逼你走。3、喜欢你加班（996）不给你钱。我工作10个月走了3波人，流动性很大，坑爹的公司。4、许垃圾喜欢骂人，喜欢你听他话，不听话就会开你。5、离职的那些人都没给工资，都已经在仲裁了。6、公积金不给交，社保不给交，税不交都会从你工资扣。7、走的时候离职单很难拿，社保和公积金不给你退出来。兄弟看到，你要是缺钱就留着，你要是水平厉害就不要来了-----不要嫌弃代码写的不好，时间不给我，只能这样写");
+    //NSLog(@"老板非常坑逼，没什么钱，喜欢拖欠工资。1、试用期自己走人不给工资。2、喜欢扣你工资逼你走。3、喜欢你加班（996）不给你钱。我工作10个月走了3波人，流动性很大，坑爹的公司。4、许垃圾喜欢骂人，喜欢你听他话，不听话就会开你。5、离职的那些人都没给工资，都已经在仲裁了。6、公积金不给交，社保不给交，税不交都会从你工资扣。7、走的时候离职单很难拿，社保和公积金不给你退出来。兄弟看到，你要是缺钱就留着，你要是水平厉害就不要来了-----不要嫌弃代码写的不好，时间不给我，只能这样写");
     
     BAURLSessionTask *sessionTask = nil;
     
